@@ -11,7 +11,9 @@ enum tokenType {
     OPENCHAVES,
     CLOSECHAVES,
     OPENCOLCHETE,
-    CLOSECOLCHETE
+    CLOSECOLCHETE,
+    VOID, 
+    COMMA
 };
 typedef struct
 {
@@ -93,7 +95,7 @@ int declaration(Token* tokens){
         if(currToken.tipo == ID){
             consomeToken(tokens);
             if(currToken.tipo == OPENPAREN){ // is functino
-                return 1; //funDec(tokens);
+                return funDec(tokens);
             } else {
                 return 1; //numVarDec(tokens);
             }
@@ -112,10 +114,65 @@ int typeSpec(Token* tokens){
 int funDec(Token * tokens){
     if(currToken.tipo == OPENPAREN){
         consomeToken(tokens);
-        int i = 1; //params(tokens);
+        int i = params(tokens);
         if(i) {
-            consomeToken(tokens);
             if(currToken.tipo == CLOSEPAREN){
+                consomeToken(tokens);
+                return compoundStmt(tokens);
+            }
+        }
+    }
+    return 0;
+}
+
+int params(Token * tokens){
+    if(currToken.tipo == VOID) {
+        consomeToken(tokens);
+        return 1;
+    } else {
+        return paramList(tokens);
+    }
+}
+
+int paramList(Token * tokens){
+    int i = param(tokens);
+    if(i) {
+        consomeToken(tokens);
+        return paramListLinha(tokens);
+    }
+    return i;
+}
+
+int paramListLinha(tokens){
+    if(currToken.tipo == EMPTY) return 1;
+    if(currToken.tipo == COMMA) {
+        consomeToken(tokens);
+        int i = param(tokens);
+        if(i){
+            consomeToken(tokens);
+            return paramListLinha(tokens);
+        }
+    } else {
+        return param(tokens);
+    }
+}
+int param(Token * tokens){
+    if(typeSpec(tokens)){
+        consomeToken(tokens);
+        if(currToken.tipo == ID){
+            consomeToken(tokens);
+            return paramLinha(tokens);
+        }
+    }
+    return 0;
+}
+
+int paramLinha(Token* tokens){
+    if(currToken.tipo == EMPTY) return 1;
+    else {
+        if(currToken.tipo == OPENCOLCHETE){
+            consomeToken(tokens);
+            if(currToken.tipo == CLOSECOLCHETE){
                 return 1;
             }
         }

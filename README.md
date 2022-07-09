@@ -1,1 +1,1 @@
-# -AnalisadorLexicoCMinus
+# AnalisadorSintaticoCMinus

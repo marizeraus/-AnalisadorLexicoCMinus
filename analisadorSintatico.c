@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 enum tokenType {
-    EMPTY = 1,
+    EMPTY = 0,
     INT,
     VOID,
     ID,
@@ -12,8 +12,9 @@ enum tokenType {
     CLOSECHAVES,
     OPENCOLCHETE,
     CLOSECOLCHETE,
-    VOID, 
-    COMMA
+    COMMA,
+    NUMTOKEN,
+    SEMICOLON
 };
 typedef struct
 {
@@ -94,10 +95,19 @@ int declaration(Token* tokens){
         consomeToken(tokens);
         if(currToken.tipo == ID){
             consomeToken(tokens);
+            printf("ID\n");
             if(currToken.tipo == OPENPAREN){ // is functino
                 return funDec(tokens);
             } else {
-                return 1; //numVarDec(tokens);
+                printf("NUMDECL\n");
+
+                if(numVarDec(tokens)){
+                    printf("NUMVARDEC %d\n", currToken.tipo);
+                    if(currToken.tipo == SEMICOLON){
+                        consomeToken(tokens);
+                        return 1;
+                    }
+                }
             }
         }
     }
@@ -106,6 +116,28 @@ int declaration(Token* tokens){
 
 int typeSpec(Token* tokens){
     if(currToken.tipo == INT || currToken.tipo == VOID){
+        return 1;
+    }
+    return 0;
+}
+
+int numVarDec(Token * tokens){
+    if(currToken.tipo == OPENCOLCHETE){
+        printf("OPENC %d\n", currToken.tipo);
+        printf("%d\n", tokens[3].tipo);
+        consomeToken(tokens);
+        printf("%d\n", currToken.tipo);
+        if(currToken.tipo == NUMTOKEN){
+        printf("NUM\n");
+
+            consomeToken(tokens);
+            if(currToken.tipo == CLOSECOLCHETE){
+                consomeToken(tokens);
+                    return 1;
+                }
+            }
+        }
+    if(currToken.tipo == EMPTY){
         return 1;
     }
     return 0;
@@ -143,7 +175,7 @@ int paramList(Token * tokens){
     return i;
 }
 
-int paramListLinha(tokens){
+int paramListLinha(Token * tokens){
     if(currToken.tipo == EMPTY) return 1;
     if(currToken.tipo == COMMA) {
         consomeToken(tokens);
@@ -180,6 +212,9 @@ int paramLinha(Token* tokens){
     return 0;
 }
 
+int compoundStmt(Token * tokens){
+    
+}
 
 int main(int argc, char *argv[ ]){
 
@@ -189,17 +224,28 @@ int main(int argc, char *argv[ ]){
     teste.tipo = INT;
     Token empty;
     Token teste2;
+    Token teste3;
+    Token teste4;
+    Token teste5;
+    Token teste6;
     strcpy( teste2.valor, "main");
     teste2.tipo = ID;
     strcpy( empty.valor, "token");
-    empty.tipo = EMPTY;
-
+    empty.tipo = OPENCOLCHETE;
+    teste3.tipo = NUMTOKEN;
+    teste4.tipo = CLOSECOLCHETE;
+    teste5.tipo = SEMICOLON;
+    teste6.tipo = EMPTY;
     Token* tokens = (Token*)malloc(10 * sizeof(Token));
     tokens[0] = teste;
     tokens[1] = teste2;
     tokens[2] = empty;
+    tokens[3] = teste3;
+    tokens[4] = teste4;
+    tokens[5] = teste5;
+    tokens[6] = teste6;
+    printf("%d\n", teste3.tipo);
     currToken = tokens[0];
-    printf("START TOKEN: %d %s\n", currToken.tipo, currToken.valor);
     printf("%d", program(tokens));
 
 }
